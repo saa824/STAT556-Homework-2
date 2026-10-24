@@ -20,3 +20,10 @@ def summarize_group(data: pd.DataFrame, group_col: str) -> pd.DataFrame:
         .sort_values("revenue", ascending=False)
         .reset_index()
     )
+
+
+def summarize_numeric(data: pd.DataFrame, column: str) -> pd.Series:
+    """Return the mean, median, min and max of a numeric column, rounded to 2 decimals."""
+    if column not in data.columns:
+        raise ValueError(f"data must contain a '{column}' column")
+    return data[column].agg(["mean", "median", "min", "max"]).round(2)
