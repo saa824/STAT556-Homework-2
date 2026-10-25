@@ -3,23 +3,31 @@ import pandas as pd
 
 
 def summarize_group(data: pd.DataFrame, group_col: str) -> pd.DataFrame:
-    """Return line count, units, revenue and mean line value per group.
+    """Summarize sales for each group.
 
-    Sorted by revenue, highest first.
+    purchases:          number of rows (one product on one order)
+    quantity_sold:      total number of items sold
+    total_sales:        total dollars of sales
+    avg_sale:           average dollars per purchase
+    pct_of_total_sales: this group's share of all sales, in percent
+
+    Sorted by total_sales, highest first.
     """
     if group_col not in data.columns:
         raise ValueError(f"data must contain a '{group_col}' column")
-    return (
+    out = (
         data.groupby(group_col)
         .agg(
-            n_lines=("order_id", "size"),
-            units=("quantity_ordered", "sum"),
-            revenue=("sales", "sum"),
-            mean_line_value=("sales", "mean"),
+            purchases=("order_id", "size"),
+            quantity_sold=("quantity_ordered", "sum"),
+            total_sales=("sales", "sum"),
+            avg_sale=("sales", "mean"),
         )
-        .sort_values("revenue", ascending=False)
+        .sort_values("total_sales", ascending=False)
         .reset_index()
     )
+    out["pct_of_total_sales"] = (out["total_sales"] / out["total_sales"].sum()).round(3)
+    return out
 
 
 def summarize_numeric(data: pd.DataFrame, column: str) -> pd.Series:
